@@ -1,7 +1,7 @@
-# PaDiM-Anomaly-Detection-Localization-master
+# PaDiM-Anomaly-Detection
 This is an implementation of the paper [PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization](https://arxiv.org/pdf/2011.08785).   
 
-This code is heavily borrowed from both SPADE-pytorch(https://github.com/byungjae89/SPADE-pytorch) and MahalanobisAD-pytorch(https://github.com/byungjae89/MahalanobisAD-pytorch) projects
+Some parts of the code are borrowed from both SPADE-pytorch(https://github.com/byungjae89/SPADE-pytorch) and MahalanobisAD-pytorch(https://github.com/byungjae89/MahalanobisAD-pytorch) projects
 <p align="center">
     <img src="imgs/pic1.png" width="1000"\>
 </p>
@@ -22,7 +22,43 @@ conda env create -f env.yaml
 conda activate padim
 ```
 
-This will install all required dependencies.
+## Usage
+
+### Command Line Arguments
+
+The script accepts the following command-line arguments:
+
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--data_path` | Path to the dataset directory | `data` |
+| `--save_path` | Path to save outputs | `./output` |
+| `--arch` | Model architecture (`resnet18` or `wide_resnet50_2`) | `wide_resnet50_2` |
+| `--batch_size` | Batch size for data loading | `16` |
+| `--seed` | Random seed for reproducibility | `1024` |
+| `--img_resize` | Image resize dimensions | `512` |
+| `--crop_size` | Center crop dimensions | `384` |
+| `--total_dimensions_resnet18` | Total feature dimensions for ResNet18 | `448` |
+| `--num_dimensions_resnet18` | Number of selected dimensions for ResNet18 | `100` |
+| `--total_dimensions_wide_resnet50_2` | Total feature dimensions for WideResNet50 | `1792` |
+| `--num_dimensions_wide_resnet50_2` | Number of selected dimensions for WideResNet50 | `700` |
+| `--class_names` | Classes to process (space separated) | All MVTec classes |
+
+### Example Commands
+
+Run on all available MVTec classes with default settings:
+```bash
+python main.py
+```
+
+Run on specific classes with custom settings:
+```bash
+python main.py --arch resnet18 --class_names bottle cable --batch_size 8 --img_size 256 --crop_size 224
+```
+
+Use a different data path:
+```bash
+python main.py --data_path /path/to/mvtec_dataset --class_names carpet grid
+```
 
 ## Datasets
 
@@ -32,6 +68,35 @@ Download from [MVTec website](https://www.mvtec.com/company/research/datasets/mv
 **NOTE**  
 Although the code comes under the MIT License, the MVTec AD dataset comes under the **CC BY-NC 4.0 (Creative Commons Non-Commercial)** License.
 
+## Dataset Structure
+
+The dataset should follow this directory structure:
+
+```
+data/
+└── dataset_name/
+    ├── <object_class_1>/
+    │   ├── ground_truth/
+    │   │   └── <defect_type>/
+    │   │       └── <image_mask>.png
+    │   ├── test/
+    │   │   ├── <defect_type>/
+    │   │   │   └── <test_image>.png
+    │   │   └── good/
+    │   │       └── <test_image>.png
+    │   └── train/
+    │       └── good/
+    │           └── <train_image>.png
+    ├── <object_class_2>/
+    │   └── ...
+    └── <object_class_n>/
+        └── ...
+
+```
+
+Place the dataset in the `data` directory or update the `--data_path` argument when running the code.
+
+**Note:** The ground truth folder is only required if you want the Pixel-level anomaly detection accuracy (ROCAUC) score.
 
 ## Results
 ### Implementation results on MVTec
